@@ -136,7 +136,7 @@ protected:
 	int32 MaxRoomSize = 7;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generator Properties")
-	int32 RoomsToGenerate;
+	int32 RoomsToGenerate = 15;
 
 	/**
 	 * The static mesh for each floor
