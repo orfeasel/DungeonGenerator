@@ -196,7 +196,7 @@ public:
 	 * Generates a dungeon
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Dungeon Generation")
-	void GenerateDungeonV2();
+	void GenerateDungeon();
 
 	/**
 	 * Sets new properties regarding the room size

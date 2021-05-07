@@ -143,7 +143,7 @@ void ADungeonGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 }
 #endif
 
-void ADungeonGenerator::GenerateDungeonV2()
+void ADungeonGenerator::GenerateDungeon()
 {
 	if (!FloorSM)
 	{
