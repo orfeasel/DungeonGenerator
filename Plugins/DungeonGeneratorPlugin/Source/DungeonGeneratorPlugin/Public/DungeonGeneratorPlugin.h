@@ -7,6 +7,7 @@
 
 class FDungeonGeneratorPluginModule : public IModuleInterface
 {
+
 public:
 
 	/** IModuleInterface implementation */
