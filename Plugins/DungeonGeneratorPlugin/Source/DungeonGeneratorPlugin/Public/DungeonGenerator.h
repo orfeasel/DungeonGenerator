@@ -140,6 +140,13 @@ protected:
 	int32 RoomsToGenerate = 15;
 
 	/**
+	 * Max Random Attempts for each room. To avoid an infinite loop try to find a fitting room for a location only a certain amount of times.
+	 * If the process fails just proceed to the next room
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Generator Properties")
+	int32 MaxRandomAttemptsPerRoom = 1500;
+
+	/**
 	 * The static mesh for each floor
 	 */
 	UPROPERTY(EditAnywhere, Category = "Generator Properties - Floor Settings")

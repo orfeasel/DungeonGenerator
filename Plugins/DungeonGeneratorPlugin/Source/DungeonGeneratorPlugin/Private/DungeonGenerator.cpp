@@ -160,6 +160,7 @@ void ADungeonGenerator::GenerateDungeon()
 	}
 
 	TileMatrix = FTileMatrix(TileMapRows, TileMapColumns);
+	TileMatrix.MaxRandomAttemptsPerRoom = MaxRandomAttemptsPerRoom;
 	TileMatrix.SetRoomSize(MinRoomSize, MaxRoomSize);
 
 	TileMatrix.CreateRooms(RoomsToGenerate);
