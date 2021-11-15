@@ -7,9 +7,9 @@
 	"Category": "Other",
 	"CreatedBy": "Orfeas Eleftheriou",
 	"CreatedByURL": "orfeasel.com",
-	"DocsURL": "",
+	"DocsURL": "https://github.com/orfeasel/DungeonGenerator/blob/main/Docs/HowToUse.pdf",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://www.orfeasel.com/contact-me/",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
@@ -18,7 +18,11 @@
 		{
 			"Name": "DungeonGeneratorPlugin",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win32",
+				"Win64"
+			]
 		}
 	]
 }
