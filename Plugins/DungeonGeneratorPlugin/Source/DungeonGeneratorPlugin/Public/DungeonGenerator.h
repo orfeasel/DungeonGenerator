@@ -12,6 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(DungeonGenerator, Log, All);
 
 class AStaticMeshActor;
 class UStaticMesh;
+class UMaterialInterface;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDungeonSpawned);
 
@@ -24,11 +25,26 @@ struct FRoomTemplate : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
 	UStaticMesh* RoomTileMesh;
 
+	/**
+	 * If assigned, we're going to replace the default material of the RoomTileMesh with the given mat
+	 * Leave empty in case you want the default material
+	 * Useful in cases where you want the same static mesh but with different material variations as room templates
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "RoomTemplate")
+	UMaterialInterface* RoomTileMeshMaterialOverride;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
 	FVector RoomTilePivotOffset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
 	UStaticMesh* WallMesh;
+
+	/**
+	 * Used to replace default material of WallMesh
+	 * Check RoomTileMeshMaterialOverride docs for more info
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
+	UMaterialInterface* WallMeshMaterialOverride;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
 	FVector WallMeshPivotOffset;
@@ -59,9 +75,10 @@ private:
 	 * Spawns the assigned floorsm at the given transform
 	 * @param InTransform - the transform to spawn the mesh at
 	 * @param SMToSpawn - the mesh to spawn
+	 * @param OverrideMaterial - if assigned, we're going to replace the 1st default material of SMToSpawn
 	 * @return the spawned mesh. Should check for nullptr
 	 */
-	AStaticMeshActor* SpawnDungeonMesh(const FTransform& InTransform, UStaticMesh* SMToSpawn);
+	AStaticMeshActor* SpawnDungeonMesh(const FTransform& InTransform, UStaticMesh* SMToSpawn, UMaterialInterface* OverrideMaterial = nullptr);
 
 	/**
 	 * Checks the bounding box of the mesh and returns its extend along Y axis

@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
+#include "Materials/MaterialInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(DungeonGenerator);
@@ -54,13 +55,14 @@ void ADungeonGenerator::SpawnDungeonFromDataTable()
 		for (int32 j = 0; j < Rooms[i].FloorTileWorldLocations.Num(); j++)
 		{
 			FVector WorldSpawnLocation = Rooms[i].FloorTileWorldLocations[j];
-			SpawnDungeonMesh(FTransform(FRotator::ZeroRotator, WorldSpawnLocation + RoomTemplate.RoomTilePivotOffset), RoomTemplate.RoomTileMesh);
+			SpawnDungeonMesh(FTransform(FRotator::ZeroRotator, WorldSpawnLocation + RoomTemplate.RoomTilePivotOffset), RoomTemplate.RoomTileMesh, RoomTemplate.RoomTileMeshMaterialOverride);
 		}
+
 		for (int32 j = 0; j < Rooms[i].WallSpawnPoints.Num(); j++)
 		{
 			FVector WorldSpawnLocation = Rooms[i].WallSpawnPoints[j].WorldLocation;
 			FRotator WallRotation = CalculateWallRotation(RoomTemplate.bIsWallFacingX, Rooms[i].WallSpawnPoints[j]);
-			SpawnDungeonMesh(FTransform(WallRotation, WorldSpawnLocation), RoomTemplate.WallMesh);
+			SpawnDungeonMesh(FTransform(WallRotation, WorldSpawnLocation), RoomTemplate.WallMesh, RoomTemplate.WallMeshMaterialOverride);
 
 		}
 	}
@@ -99,7 +101,7 @@ void ADungeonGenerator::DestroyDungeonMeshes()
 	}
 }
 
-AStaticMeshActor* ADungeonGenerator::SpawnDungeonMesh(const FTransform& InTransform, UStaticMesh* SMToSpawn)
+AStaticMeshActor* ADungeonGenerator::SpawnDungeonMesh(const FTransform& InTransform, UStaticMesh* SMToSpawn, UMaterialInterface* OverrideMaterial)
 {
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.Owner = this;
@@ -112,6 +114,12 @@ AStaticMeshActor* ADungeonGenerator::SpawnDungeonMesh(const FTransform& InTransf
 		SMActor->SetMobility(EComponentMobility::Movable);
 
 		SMActor->GetStaticMeshComponent()->SetStaticMesh(SMToSpawn);
+
+		if (OverrideMaterial)
+		{
+			SMActor->GetStaticMeshComponent()->SetMaterial(0,OverrideMaterial);
+		}
+
 		SMActor->Tags.Add(DUNGEON_MESH_TAG);
 	}
 	return SMActor;
