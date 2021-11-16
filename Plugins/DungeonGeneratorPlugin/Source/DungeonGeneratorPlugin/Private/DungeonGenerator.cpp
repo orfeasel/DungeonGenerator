@@ -3,6 +3,7 @@
 #include "DungeonGenerator.h"
 #include "DrawDebugHelpers.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 

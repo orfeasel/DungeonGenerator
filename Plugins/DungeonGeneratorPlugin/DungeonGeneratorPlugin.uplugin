@@ -23,6 +23,11 @@
 				"Win32",
 				"Win64"
 			]
+		},
+		{
+			"Name": "DungeonGeneratorEditorMode",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

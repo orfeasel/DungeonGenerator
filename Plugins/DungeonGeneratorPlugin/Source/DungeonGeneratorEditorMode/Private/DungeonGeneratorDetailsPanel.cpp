@@ -1,6 +1,6 @@
 // Copyright (c) 2021 Orfeas Eleftheriou
 
-#include "Editor/DungeonGeneratorDetailsPanel.h"
+#include "DungeonGeneratorDetailsPanel.h"
 #include "IDetailsView.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"

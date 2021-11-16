@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class DungeonGeneratorPlugin : ModuleRules
+public class DungeonGeneratorEditorMode : ModuleRules
 {
-	public DungeonGeneratorPlugin(ReadOnlyTargetRules Target) : base(Target)
+	public DungeonGeneratorEditorMode(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -36,6 +36,8 @@ public class DungeonGeneratorPlugin : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
+				"PropertyEditor",
+				"DungeonGeneratorPlugin",
 				"Slate",
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	

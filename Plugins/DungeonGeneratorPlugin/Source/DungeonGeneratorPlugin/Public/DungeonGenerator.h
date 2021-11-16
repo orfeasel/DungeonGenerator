@@ -98,11 +98,11 @@ public:
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+#endif
+
 	/* True if you want the editor to auto-retrieve the extends of the mesh */
 	UPROPERTY(EditAnywhere, Category = "Generator Properties")
 	bool bAutoFloorTileSizeGeneration = true;
-
-#endif
 
 protected:
 	// Called when the game starts or when spawned
