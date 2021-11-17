@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2021 Orfeas Eleftheriou
 
 #include "DungeonGeneratorEditorMode.h"
 #include "DungeonGenerator.h"

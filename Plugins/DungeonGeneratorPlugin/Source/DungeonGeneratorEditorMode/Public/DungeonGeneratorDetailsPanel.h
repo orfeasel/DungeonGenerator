@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Orfeas Eleftheriou
+
 #pragma once
 
 #include "CoreMinimal.h"
