@@ -1,5 +1,5 @@
 # DungeonGenerator
-A (hopefully) handy Unreal Engine 4 Dungeon Generator
+A (hopefully) handy Unreal Engine 5 Dungeon Generator
 
 
 ![Generator gif showcase](Docs/Images/RuntimeGeneration.gif)
