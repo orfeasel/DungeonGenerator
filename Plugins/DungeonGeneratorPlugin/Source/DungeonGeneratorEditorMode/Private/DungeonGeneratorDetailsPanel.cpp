@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Orfeas Eleftheriou
+// Copyright (c) 2022 Orfeas Eleftheriou
 
 #include "DungeonGeneratorDetailsPanel.h"
 #include "IDetailsView.h"
