@@ -16,7 +16,6 @@ class UMaterialInterface;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDungeonSpawned);
 
-
 USTRUCT(BlueprintType)
 struct FRoomTemplate : public FTableRowBase
 {
@@ -66,6 +65,10 @@ private:
 	 */
 	FTileMatrix TileMatrix;
 
+	/*void SpawnFloorTiles(const TArray<FVector>& SpawnLocations, UMaterialInterface* MaterialOverride = nullptr);
+
+	void SpawnWallTiles(const TArray<FVector>& SpawnLocations, UMaterialInterface* MaterialOverride = nullptr);*/
+
 	/**
 	 * Destroys all previously generated meshes from this dungeon generator
 	 */
@@ -90,9 +93,10 @@ private:
 	 * Checks if a wall mesh needs to be rotated by 90 degrees
 	 * @param bWallFacingXProperty - true if the wall mesh we're using is facing the X axis
 	 * @param WallSpawnPoint - the wall spawn point we're using in order to spawn the wall
+	 * @param LocationOffset - in case the wall needs rotating, we're first applying any rotation and then generate a correct location offset based on the original one
 	 * @return the correct rotation of the assigned wall mesh
 	 */
-	FRotator CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint) const;
+	FRotator CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, FVector& LocationOffset) const;
 
 	/**
 	 * Spawns a dungeon using random room templates from a provided data table
@@ -178,6 +182,8 @@ protected:
 	/**
 	 * By default, each tile location is pointing at the center of the tile. If your FloorSM isn't
 	 * centered, adjust this value to match your settings
+	 * For instance, if the floor's pivot point is located on the bottom left corner the FloorPivotOffset
+	 * needs to be (-TileSize_X,-TileSize_Y,0)
 	 */
 	UPROPERTY(EditAnywhere, Category = "Generator Properties - Floor Settings")
 	FVector FloorPivotOffset;
@@ -189,8 +195,9 @@ protected:
 	UStaticMesh* WallSM;
 
 	/**
-	 * By default, each wall location is center at the top,right,left or bottom middle of each tile. If your
-	 * WallSM isn't center, adjust this value to match your settings
+	 * By default, each wall location is centered at the top,right,left or bottom middle of each tile. If your
+	 * WallSM isn't centered, adjust this value to match your settings
+	 * See FloorPivotOffset for more info regarding this setting.
 	 */
 	UPROPERTY(EditAnywhere, Category = "Generator Properties - Wall Settings")
 	FVector WallSMPivotOffset;

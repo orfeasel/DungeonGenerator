@@ -7,6 +7,8 @@
 #include "Engine/StaticMeshActor.h"
 #include "Materials/MaterialInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
+
 
 DEFINE_LOG_CATEGORY(DungeonGenerator);
 
@@ -17,21 +19,31 @@ float ADungeonGenerator::CalculateFloorTileSize(const UStaticMesh& Mesh) const
 	return FMath::Abs(Mesh.GetBoundingBox().Min.Y) + FMath::Abs(Mesh.GetBoundingBox().Max.Y);
 }
 
-FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint) const
+FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, FVector& LocationOffset) const
 {
 	FRotator WallRotation = FRotator::ZeroRotator;
+	//bNeedsOffset=false;
+	//LocationOffset = WallSMPivotOffset;
+	LocationOffset = FVector();
 
-	if (!bWallFacingXProperty)
+	//If the point is generated in a way that is looking at the X axis and the wall is rotated to look at Y make sure to 
+	//rotate the wall and apply an offset
+	//Note: Points looking at X axis are spread along Y
+	//WallSpawnPoint.bFacingX = true when the wall is located in an "up/down" tile
+	if (!bWallFacingXProperty && WallSpawnPoint.bFacingX)
 	{
-		if (WallSpawnPoint.bFacingX)
-		{
-			WallRotation = FRotator(0.f, -90.f, 0.f);
-		}
+		WallRotation = FRotator(0.f, -90.f, 0.f);
+		LocationOffset.Y += FMath::Abs(WallSMPivotOffset.X);
 	}
-	else if (!WallSpawnPoint.bFacingX)
+	else if (!WallSpawnPoint.bFacingX && bWallFacingXProperty)
 	{
 		WallRotation = FRotator(0.f, -90.f, 0.f);
 	}
+	else //No rotation adjustments needed; just apply the original offset
+	{
+		LocationOffset+=WallSMPivotOffset;
+	}
+
 
 	return WallRotation;
 }
@@ -61,9 +73,9 @@ void ADungeonGenerator::SpawnDungeonFromDataTable()
 		for (int32 j = 0; j < Rooms[i].WallSpawnPoints.Num(); j++)
 		{
 			FVector WorldSpawnLocation = Rooms[i].WallSpawnPoints[j].WorldLocation;
-			FRotator WallRotation = CalculateWallRotation(RoomTemplate.bIsWallFacingX, Rooms[i].WallSpawnPoints[j]);
-			SpawnDungeonMesh(FTransform(WallRotation, WorldSpawnLocation), RoomTemplate.WallMesh, RoomTemplate.WallMeshMaterialOverride);
-
+			FVector WallModifiedOffset;
+			FRotator WallRotation = CalculateWallRotation(RoomTemplate.bIsWallFacingX, Rooms[i].WallSpawnPoints[j], WallModifiedOffset);
+			SpawnDungeonMesh(FTransform(WallRotation, WorldSpawnLocation + WallModifiedOffset), RoomTemplate.WallMesh, RoomTemplate.WallMeshMaterialOverride);
 		}
 	}
 	SpawnGenericDungeon(CorridorFloorTiles, CorridorWalls);
@@ -77,7 +89,11 @@ void ADungeonGenerator::SpawnGenericDungeon(const TArray<FVector>& FloorTileLoca
 	}
 	for (int32 i = 0; i < WallSpawnPoints.Num(); i++)
 	{
-		SpawnDungeonMesh(FTransform(CalculateWallRotation(bWallFacingX, WallSpawnPoints[i]), WallSpawnPoints[i].WorldLocation + WallSMPivotOffset), WallSM);
+		FVector WallModifiedOffset;
+		FRotator WallRotation = CalculateWallRotation(bWallFacingX, WallSpawnPoints[i], WallModifiedOffset);
+		FVector WallSpawnPoint = WallSpawnPoints[i].WorldLocation + WallModifiedOffset;
+
+		SpawnDungeonMesh(FTransform(WallRotation,WallSpawnPoint),WallSM);
 	}
 
 	if (OnDungeonSpawned.IsBound())
