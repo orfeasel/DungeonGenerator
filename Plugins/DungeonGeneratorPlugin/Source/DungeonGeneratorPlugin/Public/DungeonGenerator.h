@@ -263,4 +263,36 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Dungeon Generation")
 	FOnDungeonSpawned OnDungeonSpawned;
 
+#if WITH_EDITORONLY_DATA
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	bool bDebugActive=false;
+
+	/**
+	 * If debug is active the generator will spawn boxes in each spawn location.
+	 * Adjust the size of the box here and the individual colors below
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	FVector DebugVertexBoxExtents;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	FLinearColor DefaultFloorSpawnLocationColor;
+
+	/**
+	 * If no offset is used this will overlap with DefaultFloorSpawnLocationColor box
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	FLinearColor OffsetedFloorSpawnLocationColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	FLinearColor DefaultWallSpawnLocationColor;
+
+	/**
+	 * If no offset is used this will overlap with DefaultWallSpawnLocationColor box
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dungeon Generation - Debug")
+	FLinearColor OffsetedWallSpawnLocationColor;
+
+#endif
+
 };

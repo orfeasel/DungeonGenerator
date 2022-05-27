@@ -85,10 +85,29 @@ void ADungeonGenerator::SpawnGenericDungeon(const TArray<FVector>& FloorTileLoca
 {
 	for (int32 i = 0; i < FloorTileLocations.Num(); i++)
 	{
+		//Draw debug boxes if needed
+#if WITH_EDITOR
+		if (bDebugActive)
+		{
+			DrawDebugBox(GetWorld(), FloorTileLocations[i], DebugVertexBoxExtents, DefaultFloorSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
+			DrawDebugBox(GetWorld(), FloorTileLocations[i] + FloorPivotOffset, DebugVertexBoxExtents, OffsetedFloorSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
+		}
+#endif
+
 		SpawnDungeonMesh(FTransform(FRotator::ZeroRotator, FloorTileLocations[i] + FloorPivotOffset), FloorSM);
 	}
 	for (int32 i = 0; i < WallSpawnPoints.Num(); i++)
 	{
+
+		//Draw debug boxes if needed
+#if WITH_EDITOR
+		if (bDebugActive)
+		{
+			DrawDebugBox(GetWorld(), WallSpawnPoints[i].WorldLocation, DebugVertexBoxExtents, DefaultWallSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
+			DrawDebugBox(GetWorld(), WallSpawnPoints[i].WorldLocation + WallSMPivotOffset, DebugVertexBoxExtents, OffsetedWallSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
+		}
+#endif
+		
 		FVector WallModifiedOffset;
 		FRotator WallRotation = CalculateWallRotation(bWallFacingX, WallSpawnPoints[i], WallModifiedOffset);
 		FVector WallSpawnPoint = WallSpawnPoints[i].WorldLocation + WallModifiedOffset;
