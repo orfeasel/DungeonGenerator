@@ -32,6 +32,9 @@ struct FRoomTemplate : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "RoomTemplate")
 	UMaterialInterface* RoomTileMeshMaterialOverride;
 
+	/**
+	 * Same functionality as FloorPivotOffset - check comments in Source Code or In-Editor Details Panel!
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoomTemplate")
 	FVector RoomTilePivotOffset;
 
@@ -96,7 +99,7 @@ private:
 	 * @param LocationOffset - in case the wall needs rotating, we're first applying any rotation and then generate a correct location offset based on the original one
 	 * @return the correct rotation of the assigned wall mesh
 	 */
-	FRotator CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, FVector& LocationOffset) const;
+	FRotator CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, const FVector& WallPivotOffsetOverride, FVector& LocationOffset) const;
 
 	/**
 	 * Spawns a dungeon using random room templates from a provided data table

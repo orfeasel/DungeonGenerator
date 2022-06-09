@@ -19,11 +19,9 @@ float ADungeonGenerator::CalculateFloorTileSize(const UStaticMesh& Mesh) const
 	return FMath::Abs(Mesh.GetBoundingBox().Min.Y) + FMath::Abs(Mesh.GetBoundingBox().Max.Y);
 }
 
-FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, FVector& LocationOffset) const
+FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, const FTileMatrix::FWallSpawnPoint& WallSpawnPoint, const FVector& WallPivotOffsetOverride, FVector& LocationOffset) const
 {
 	FRotator WallRotation = FRotator::ZeroRotator;
-	//bNeedsOffset=false;
-	//LocationOffset = WallSMPivotOffset;
 	LocationOffset = FVector();
 
 	//If the point is generated in a way that is looking at the X axis and the wall is rotated to look at Y make sure to 
@@ -33,7 +31,8 @@ FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, con
 	if (!bWallFacingXProperty && WallSpawnPoint.bFacingX)
 	{
 		WallRotation = FRotator(0.f, -90.f, 0.f);
-		LocationOffset.Y += FMath::Abs(WallSMPivotOffset.X);
+		//LocationOffset.Y += FMath::Abs(WallSMPivotOffset.X);
+		LocationOffset.Y += FMath::Abs(WallPivotOffsetOverride.X);
 	}
 	else if (!WallSpawnPoint.bFacingX && bWallFacingXProperty)
 	{
@@ -41,7 +40,8 @@ FRotator ADungeonGenerator::CalculateWallRotation(bool bWallFacingXProperty, con
 	}
 	else //No rotation adjustments needed; just apply the original offset
 	{
-		LocationOffset+=WallSMPivotOffset;
+		//LocationOffset+=WallSMPivotOffset;
+		LocationOffset += WallPivotOffsetOverride;
 	}
 
 
@@ -54,12 +54,16 @@ void ADungeonGenerator::SpawnDungeonFromDataTable()
 	FString ContextStr;
 	RoomTemplatesDataTable->GetAllRows<FRoomTemplate>(ContextStr, RoomTemplates);
 
+	ensure(RoomTemplates.Num() > 0);
+
+	float DataTableFloorTileSize = CalculateFloorTileSize(*(*RoomTemplates[0]).RoomTileMesh);
+
 	TArray<FTileMatrix::FRoom> Rooms;
 	TArray<FVector> CorridorFloorTiles;
 	TArray<FTileMatrix::FWallSpawnPoint> CorridorWalls;
-	TileMatrix.ProjectTileMapLocationsToWorld(FloorTileSize, Rooms, CorridorFloorTiles, CorridorWalls);
+	TileMatrix.ProjectTileMapLocationsToWorld(DataTableFloorTileSize, Rooms, CorridorFloorTiles, CorridorWalls);
 
-	//Spawn rooms using a random template from the provided table
+	//Spawn rooms & walls using a random template from the provided table
 	for (int32 i = 0; i < Rooms.Num(); i++)
 	{
 		FRoomTemplate RoomTemplate = *RoomTemplates[FMath::RandRange(0, RoomTemplates.Num() - 1)];
@@ -72,13 +76,40 @@ void ADungeonGenerator::SpawnDungeonFromDataTable()
 
 		for (int32 j = 0; j < Rooms[i].WallSpawnPoints.Num(); j++)
 		{
-			FVector WorldSpawnLocation = Rooms[i].WallSpawnPoints[j].WorldLocation;
-			FVector WallModifiedOffset;
-			FRotator WallRotation = CalculateWallRotation(RoomTemplate.bIsWallFacingX, Rooms[i].WallSpawnPoints[j], WallModifiedOffset);
-			SpawnDungeonMesh(FTransform(WallRotation, WorldSpawnLocation + WallModifiedOffset), RoomTemplate.WallMesh, RoomTemplate.WallMeshMaterialOverride);
+			//FVector WorldSpawnLocation = Rooms[i].WallSpawnPoints[j].WorldLocation;
+			FVector WallModifiedOffset = FVector();
+			FRotator WallRotation = CalculateWallRotation(RoomTemplate.bIsWallFacingX, Rooms[i].WallSpawnPoints[j], RoomTemplate.WallMeshPivotOffset, WallModifiedOffset);
+			FVector WallSpawnLocation = Rooms[i].WallSpawnPoints[j].WorldLocation + WallModifiedOffset;
+			SpawnDungeonMesh(FTransform(WallRotation, WallSpawnLocation), RoomTemplate.WallMesh, RoomTemplate.WallMeshMaterialOverride);
 		}
 	}
-	SpawnGenericDungeon(CorridorFloorTiles, CorridorWalls);
+
+	
+	//Get the 1st element of the data table to retrieve any pivot offsets
+	//The 1st row of the data table will be used to create corridors connecting various spawned rooms
+	FVector FloorTileOffset = RoomTemplates[0]->RoomTilePivotOffset;
+	UStaticMesh* CorridorFloorTile = RoomTemplates[0]->RoomTileMesh;
+	UStaticMesh* CorridorWall = RoomTemplates[0]->WallMesh;
+
+	//Spawn floor tiles for corridors
+	for (int32 i = 0; i < CorridorFloorTiles.Num(); i++)
+	{
+		//CorridorFloorTiles[i]+=FloorTileOffset;
+		SpawnDungeonMesh(FTransform(FRotator::ZeroRotator,CorridorFloorTiles[i] + FloorTileOffset), CorridorFloorTile);
+	}
+
+	bool bCorridorWallFacingX = RoomTemplates[0]->bIsWallFacingX;
+	FVector RoomTemplateWallOffset = RoomTemplates[0]->WallMeshPivotOffset;
+
+	//Spawn walls for corridors
+	for (int32 i = 0; i < CorridorWalls.Num(); i++)
+	{
+		FVector WallModifiedOffset = FVector();
+		FRotator WallRotation = CalculateWallRotation(bCorridorWallFacingX, CorridorWalls[i], RoomTemplateWallOffset, WallModifiedOffset);
+		FVector WallSpawnPoint = CorridorWalls[i].WorldLocation + WallModifiedOffset;
+
+		SpawnDungeonMesh(FTransform(WallRotation,WallSpawnPoint), CorridorWall);
+	}
 }
 
 void ADungeonGenerator::SpawnGenericDungeon(const TArray<FVector>& FloorTileLocations, const TArray<FTileMatrix::FWallSpawnPoint>& WallSpawnPoints)
@@ -98,19 +129,19 @@ void ADungeonGenerator::SpawnGenericDungeon(const TArray<FVector>& FloorTileLoca
 	}
 	for (int32 i = 0; i < WallSpawnPoints.Num(); i++)
 	{
+		
+		FVector WallModifiedOffset = FVector();
+		FRotator WallRotation = CalculateWallRotation(bWallFacingX, WallSpawnPoints[i], WallSMPivotOffset, WallModifiedOffset);
+		FVector WallSpawnPoint = WallSpawnPoints[i].WorldLocation + WallModifiedOffset;
 
 		//Draw debug boxes if needed
 #if WITH_EDITOR
 		if (bDebugActive)
 		{
 			DrawDebugBox(GetWorld(), WallSpawnPoints[i].WorldLocation, DebugVertexBoxExtents, DefaultWallSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
-			DrawDebugBox(GetWorld(), WallSpawnPoints[i].WorldLocation + WallSMPivotOffset, DebugVertexBoxExtents, OffsetedWallSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
+			DrawDebugBox(GetWorld(), WallSpawnPoint, DebugVertexBoxExtents, OffsetedWallSpawnLocationColor.ToFColor(true), true, 1555.f, 15);
 		}
 #endif
-		
-		FVector WallModifiedOffset;
-		FRotator WallRotation = CalculateWallRotation(bWallFacingX, WallSpawnPoints[i], WallModifiedOffset);
-		FVector WallSpawnPoint = WallSpawnPoints[i].WorldLocation + WallModifiedOffset;
 
 		SpawnDungeonMesh(FTransform(WallRotation,WallSpawnPoint),WallSM);
 	}
@@ -189,20 +220,7 @@ void ADungeonGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 void ADungeonGenerator::GenerateDungeon()
 {
-	if (!FloorSM)
-	{
-		UE_LOG(DungeonGenerator, Warning, TEXT("Cannot generate dungeon"));
-		UE_LOG(DungeonGenerator, Error, TEXT("Invalid FloorSM. Verify you have assigned a valid floor mesh"));
-		return;
-	}
-
-	if (!WallSM)
-	{
-		UE_LOG(DungeonGenerator, Warning, TEXT("Cannot generate dungeon"));
-		UE_LOG(DungeonGenerator, Error, TEXT("Invalid WallSM. Verify you have assigned a valid wall mesh"));
-		return;
-	}
-
+	
 	TileMatrix = FTileMatrix(TileMapRows, TileMapColumns);
 	TileMatrix.MaxRandomAttemptsPerRoom = MaxRandomAttemptsPerRoom;
 	TileMatrix.SetRoomSize(MinRoomSize, MaxRoomSize);
@@ -216,6 +234,20 @@ void ADungeonGenerator::GenerateDungeon()
 	}
 	else
 	{
+		if (!FloorSM)
+		{
+			UE_LOG(DungeonGenerator, Warning, TEXT("Cannot generate dungeon"));
+			UE_LOG(DungeonGenerator, Error, TEXT("Invalid FloorSM. Verify you have assigned a valid floor mesh"));
+			return;
+		}
+
+		if (!WallSM)
+		{
+			UE_LOG(DungeonGenerator, Warning, TEXT("Cannot generate dungeon"));
+			UE_LOG(DungeonGenerator, Error, TEXT("Invalid WallSM. Verify you have assigned a valid wall mesh"));
+			return;
+		}
+
 		TArray<FVector> FloorTiles;
 		TArray<FTileMatrix::FWallSpawnPoint> WallSpawnPoints;
 		TileMatrix.ProjectTileMapLocationsToWorld(FloorTileSize, FloorTiles, WallSpawnPoints);
