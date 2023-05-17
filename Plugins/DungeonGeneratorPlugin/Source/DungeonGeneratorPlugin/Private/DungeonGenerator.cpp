@@ -5,10 +5,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/World.h"
 #include "Materials/MaterialInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "DrawDebugHelpers.h"
-
 
 DEFINE_LOG_CATEGORY(DungeonGenerator);
 
@@ -156,7 +155,8 @@ void ADungeonGenerator::DestroyDungeonMeshes()
 {
 	//Erase previously spawned stuff
 	TArray<AActor*> SpawnedActors;
-	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), AActor::StaticClass(), DUNGEON_MESH_TAG, SpawnedActors);
+	//const UWorld* World = GetWorld();
+	UGameplayStatics::GetAllActorsOfClassWithTag(this, AActor::StaticClass(), DUNGEON_MESH_TAG, SpawnedActors);
 
 	for (int32 i = SpawnedActors.Num() - 1; i >= 0; i--)
 	{
