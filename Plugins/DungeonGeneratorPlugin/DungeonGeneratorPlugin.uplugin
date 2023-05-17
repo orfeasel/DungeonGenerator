@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.1",
+	"VersionName": "1.2",
 	"FriendlyName": "DungeonGeneratorPlugin",
 	"Description": "A handy dungeon generator",
 	"Category": "Other",
@@ -22,11 +22,6 @@
 			"WhitelistPlatforms": [
 				"Win64"
 			]
-		},
-		{
-			"Name": "DungeonGeneratorEditorMode",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
 		}
 	]
 }

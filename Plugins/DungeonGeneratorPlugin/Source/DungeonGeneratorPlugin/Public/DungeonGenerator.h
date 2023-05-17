@@ -230,7 +230,7 @@ public:
 	/**
 	 * Generates a dungeon
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Dungeon Generation")
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Dungeon Generation")
 	void GenerateDungeon();
 
 	/**
