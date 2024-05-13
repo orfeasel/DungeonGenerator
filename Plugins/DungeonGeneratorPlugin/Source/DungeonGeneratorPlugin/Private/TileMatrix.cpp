@@ -2,6 +2,8 @@
 
 #include "TileMatrix.h"
 
+DEFINE_LOG_CATEGORY(TileMatrixLog);
+
 int32 FTileMatrix::ManhattanDistance(const Tile& A, const Tile& B)
 {
 	return FMath::Abs(A.Key - B.Key) + FMath::Abs(A.Value - B.Value);
@@ -417,7 +419,8 @@ void FTileMatrix::CreateRooms(int32 RoomCount)
 
 void FTileMatrix::PrintDebugTileMap() const
 {
-	GLog->Log(" ---- Printing Debug Tile Map ---- ");
+	UE_LOG(TileMatrixLog, Warning, TEXT(" ---- Printing Debug Tile Map ---- "));
+	//GLog->Log(" ---- Printing Debug Tile Map ---- ");
 	for (int32 i = 0; i < TileMap.Num(); i++)
 	{
 		FString Row;
@@ -429,11 +432,13 @@ void FTileMatrix::PrintDebugTileMap() const
 		}
 		FString ElementStr = ((TileMap[i])[TileMap[i].Num() - 1]) ? FString("1") : FString("0");
 		Row.Append(ElementStr);
-
-		GLog->Log(Row);
+		
+		//GLog->Log(Row);
+		UE_LOG(TileMatrixLog, Warning, TEXT("%s"), *FString(Row));
 	}
 
-	GLog->Log(" ---- End Of Printing Debug Tile Map ----");
+	UE_LOG(TileMatrixLog, Warning, TEXT(" ---- End Of Printing Debug Tile Map ----"));
+	//GLog->Log(" ---- End Of Printing Debug Tile Map ----");
 }
 
 void FTileMatrix::ProjectTileMapLocationsToWorld(float TileSize, TArray<FVector>& FloorLocations, TArray<FWallSpawnPoint>& WallLocations)

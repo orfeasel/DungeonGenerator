@@ -11,6 +11,7 @@ public class DungeonGeneratorPlugin : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
+				
 			}
 			);
 				
@@ -26,6 +27,7 @@ public class DungeonGeneratorPlugin : ModuleRules
 			new string[]
 			{
 				"Core",
+				//"DungeonGeneratorPlugin"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,6 +40,7 @@ public class DungeonGeneratorPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
