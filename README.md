@@ -1,7 +1,7 @@
 # DungeonGenerator
 A (hopefully) handy Unreal Engine 5 Dungeon Generator
 
-Updated for 5.3
+Updated for 5.4
 
 ![Generator gif showcase](Docs/Images/RuntimeGeneration.gif)
 
